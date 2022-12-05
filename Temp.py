@@ -2,66 +2,15 @@ import os
 import open3d as o3d
 
 
-def distance_check(X,Y,Z):
-    distance = float(Z)
-    #distance = ((float(X)*10)**2 + (10*float(Y))**2 + (10*float(Z))**2)**(1/2)
-    return distance
-
-
-if os.system("cp A.pcd Edited_A.pcd")==0:
-    new_file = open("./Edited_A.pcd", 'w')
-    old_file = open("./A.pcd", 'r')
-
-
-for i in range(0,11):
-    line = old_file.readline()
-    new_file.write(line)
-
-cnt=0
-while line:
-    line = old_file.readline()
-    XYZ= line.split()
     
-    if len(line)==0 or distance_check(XYZ[0],XYZ[1],XYZ[2]) >1.8:
-        continue
-    else :
-        new_file.write(line)
-        cnt+=1
+pcd = o3d.io.read_point_cloud("upsampled_cloud.pcd")
 
-    
-new_file.close()
-old_file.close()
-new_file = open("./Edited_A.pcd", "r")
-lines_all = new_file.readlines()
-new_file_w = open("./Edited_A.pcd", "w")
-
-
-new_string_7 = "WIDTH "+ str(cnt) + "\n"
-new_string_10 = "POINTS "+ str(cnt) + "\n"
-
-
-lines=[]
-
-for i,l in enumerate(lines_all):
-    if i==6:
-        lines= lines+[new_string_7]
-    elif i==9:
-        lines= lines+[new_string_10]
-    else:
-        lines= lines+[l]
-new_file_w.writelines(lines)
-new_file_w.close()
-new_file.close()
-    
-    
-pcd = o3d.io.read_point_cloud("Edited_A.pcd")
-
-alpha = 0.0136
+alpha = 0.001
 #print(f"alpha={alpha:.3f}")
 mesh = o3d.geometry.TriangleMesh.create_from_point_cloud_alpha_shape(pcd, alpha)
 mesh.compute_vertex_normals()
 o3d.visualization.draw_geometries([mesh], mesh_show_back_face=True)#to ply
-#o3d.io.write_triangle_mesh("TOTAL.ply",mesh)
+o3d.io.write_triangle_mesh("TOTAL.ply",mesh)
 
 '''alpha = 0.05
 pcd = o3d.io.read_point_cloud("Edited_A.pcd")
